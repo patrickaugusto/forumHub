@@ -17,13 +17,13 @@ public class Perfil {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome;
+    private Role role; //enum
 
     public Long getId() {
         return id;
     }
 
-    public String getNome() {
-        return nome;
+    public String getRole() {
+        return role.toString();
     }
 }

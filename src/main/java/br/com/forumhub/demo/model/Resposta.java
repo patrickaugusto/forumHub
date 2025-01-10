@@ -1,15 +1,16 @@
 package br.com.forumhub.demo.model;
 
+import br.com.forumhub.demo.dtos.resposta.RespostaCreateDTO;
+import br.com.forumhub.demo.dtos.resposta.RespostaUpdateDTO;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Entity
 public class Resposta {
     @Id
@@ -17,7 +18,7 @@ public class Resposta {
     private Long id;
 
     private String mensagem;
-    private LocalDateTime dataCriacao;
+    private LocalDate dataCriacao;
     private Boolean solucao;
 
     @ManyToOne
@@ -25,6 +26,31 @@ public class Resposta {
 
     @ManyToOne
     private Usuario autor;
+
+    public Resposta(Resposta resposta, Topico topico, Usuario autor) {
+        this.mensagem = resposta.mensagem;
+        this.dataCriacao = LocalDate.now();
+        this.solucao = resposta.solucao;
+        this.autor = autor;
+        this.topico = topico;
+    }
+
+    public Resposta(Resposta respostaAtualizada) {
+
+    }
+
+    public Resposta(@Valid RespostaCreateDTO respostaCreateDTO, Topico topico, Usuario autor) {
+        this.mensagem = respostaCreateDTO.mensagem();
+        this.dataCriacao = LocalDate.now();
+        this.solucao = false;
+        this.autor = autor;
+        this.topico = topico;
+    }
+
+    public Resposta(@Valid RespostaUpdateDTO respostaUpdateDTO) {
+        this.mensagem = respostaUpdateDTO.mensagem();
+        this.solucao = respostaUpdateDTO.solucao();
+    }
 
     public Long getId() {
         return id;
@@ -34,7 +60,7 @@ public class Resposta {
         return mensagem;
     }
 
-    public LocalDateTime getDataCriacao() {
+    public LocalDate getDataCriacao() {
         return dataCriacao;
     }
 

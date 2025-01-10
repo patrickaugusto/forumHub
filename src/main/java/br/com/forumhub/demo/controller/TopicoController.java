@@ -1,8 +1,8 @@
 package br.com.forumhub.demo.controller;
 
-import br.com.forumhub.demo.dtos.DadosAtualizarTopico;
-import br.com.forumhub.demo.dtos.DadosCadastroTopico;
-import br.com.forumhub.demo.dtos.DadosListagemTopico;
+import br.com.forumhub.demo.dtos.topico.TopicoUpdateDTO;
+import br.com.forumhub.demo.dtos.topico.TopicoCreateDTO;
+import br.com.forumhub.demo.dtos.topico.TopicoResponseDTO;
 import br.com.forumhub.demo.service.TopicoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,20 +19,20 @@ public class TopicoController {
     private TopicoService topicoService;
 
     @PostMapping
-    public ResponseEntity<DadosListagemTopico> cadastrar(@RequestBody @Validated DadosCadastroTopico topicoDto) {
+    public ResponseEntity<TopicoResponseDTO> cadastrar(@RequestBody @Validated TopicoCreateDTO topicoDto) {
         var dto = topicoService.cadastroTopico(topicoDto);
         return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/listar")
-    public ResponseEntity<List<DadosListagemTopico>> listarPaginados() {
+    public ResponseEntity<List<TopicoResponseDTO>> listarPaginados() {
 
         var topicos = topicoService.listarTopicos();
         return ResponseEntity.ok().body(topicos);
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<List<DadosListagemTopico>> listarPorCursoEAno(
+    public ResponseEntity<List<TopicoResponseDTO>> listarPorCursoEAno(
             @RequestParam String cursoNome,
             @RequestParam int ano) {
 
@@ -41,13 +41,13 @@ public class TopicoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DadosListagemTopico> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<TopicoResponseDTO> buscarPorId(@PathVariable Long id) {
         var topico = topicoService.buscarPorId(id);
         return ResponseEntity.ok().body(topico);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DadosListagemTopico> atualizarTopico(@PathVariable Long id, @RequestBody @Validated DadosAtualizarTopico topicoDto) {
+    public ResponseEntity<TopicoResponseDTO> atualizarTopico(@PathVariable Long id, @RequestBody @Validated TopicoUpdateDTO topicoDto) {
         return ResponseEntity.ok().body(topicoService.atualizarTopico(id, topicoDto));
     }
 

@@ -1,8 +1,8 @@
 package br.com.forumhub.demo.service;
 
-import br.com.forumhub.demo.dtos.DadosAtualizarTopico;
-import br.com.forumhub.demo.dtos.DadosCadastroTopico;
-import br.com.forumhub.demo.dtos.DadosListagemTopico;
+import br.com.forumhub.demo.dtos.topico.TopicoUpdateDTO;
+import br.com.forumhub.demo.dtos.topico.TopicoCreateDTO;
+import br.com.forumhub.demo.dtos.topico.TopicoResponseDTO;
 import br.com.forumhub.demo.model.Curso;
 import br.com.forumhub.demo.model.Topico;
 import br.com.forumhub.demo.model.Usuario;
@@ -10,8 +10,6 @@ import br.com.forumhub.demo.repository.CursoRepository;
 import br.com.forumhub.demo.repository.TopicoRepository;
 import br.com.forumhub.demo.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +26,7 @@ public class TopicoService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public DadosListagemTopico cadastroTopico(DadosCadastroTopico topicoDto) {
+    public TopicoResponseDTO cadastroTopico(TopicoCreateDTO topicoDto) {
         if(topicoRepository.existsByTituloAndMensagem(topicoDto.titulo(), topicoDto.mensagem())){
             throw new RuntimeException("Titulo Ja cadastrado");
         }
@@ -41,31 +39,31 @@ public class TopicoService {
         Topico topico = new Topico(topicoDto, autor, curso);
         topicoRepository.save(topico);
 
-        return new DadosListagemTopico(topico);
+        return new TopicoResponseDTO(topico);
     }
 
-    public List<DadosListagemTopico> listarTopicos() {
+    public List<TopicoResponseDTO> listarTopicos() {
         return topicoRepository.findAll()
                 .stream()
-                .map(DadosListagemTopico::new)
+                .map(TopicoResponseDTO::new)
                 .collect(Collectors.toList());
 
     }
 
-    public List<DadosListagemTopico> buscarPorCursoEAno(String cursoNome, int ano){
+    public List<TopicoResponseDTO> buscarPorCursoEAno(String cursoNome, int ano){
         List<Topico> topicos = topicoRepository.findByCursoAndAno(cursoNome, ano);
         return topicos.stream()
-                .map(DadosListagemTopico::new)
+                .map(TopicoResponseDTO::new)
                 .toList();
 
     }
 
-    public DadosListagemTopico buscarPorId(Long id){
+    public TopicoResponseDTO buscarPorId(Long id){
         var topico = topicoRepository.getReferenceById(id);
-        return new DadosListagemTopico(topico);
+        return new TopicoResponseDTO(topico);
     }
 
-    public DadosListagemTopico atualizarTopico(Long id, DadosAtualizarTopico topicoDto){
+    public TopicoResponseDTO atualizarTopico(Long id, TopicoUpdateDTO topicoDto){
         Optional<Topico> topicoOp = topicoRepository.findById(id);
         if(topicoOp.isEmpty()){
             throw new RuntimeException("Topico com o id " + id + " não encontrado");
@@ -74,7 +72,8 @@ public class TopicoService {
         var topico = topicoOp.get();
 
         topico = new Topico(topicoDto);
-        return new DadosListagemTopico(topico);
+        topicoRepository.save(topico);
+        return new TopicoResponseDTO(topico);
     }
 
     public void deleteTopico(Long id){

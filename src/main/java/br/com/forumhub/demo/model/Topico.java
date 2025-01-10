@@ -1,15 +1,13 @@
 package br.com.forumhub.demo.model;
 
-import br.com.forumhub.demo.dtos.DadosAtualizarTopico;
-import br.com.forumhub.demo.dtos.DadosCadastroTopico;
+import br.com.forumhub.demo.dtos.topico.TopicoUpdateDTO;
+import br.com.forumhub.demo.dtos.topico.TopicoCreateDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -23,7 +21,7 @@ public class Topico {
     private String titulo;
     private String mensagem;
     private LocalDate dataCriacao;
-    private String status;
+    private String status; //substituir por enum
 
     @ManyToOne
     private Usuario autor;
@@ -34,7 +32,7 @@ public class Topico {
     @OneToMany(mappedBy = "topico", cascade = CascadeType.ALL)
     private List<Resposta> respostas;
 
-    public Topico(DadosCadastroTopico topicoDto, Usuario autor, Curso curso) {
+    public Topico(TopicoCreateDTO topicoDto, Usuario autor, Curso curso) {
         this.titulo = topicoDto.titulo();
         this.mensagem = topicoDto.mensagem();
         this.dataCriacao = LocalDate.now();
@@ -43,7 +41,7 @@ public class Topico {
         this.curso = curso;
     }
 
-    public Topico(DadosAtualizarTopico topicoDto) {
+    public Topico(TopicoUpdateDTO topicoDto) {
         this.titulo = topicoDto.titulo();
         this.mensagem = topicoDto.mensagem();
     }
