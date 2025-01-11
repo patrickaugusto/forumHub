@@ -2,11 +2,14 @@ package br.com.forumhub.demo.model;
 
 import br.com.forumhub.demo.dtos.usuario.UsuarioCreateDTO;
 import br.com.forumhub.demo.dtos.usuario.UsuarioUpdateDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,6 +23,11 @@ public class Usuario {
     private String nome;
     private String email;
     private String senha;
+
+    @OneToMany(mappedBy = "autor")
+    @JsonIgnore
+    private List<Topico> topicos;
+
 
     //@ManyToMany(fetch = FetchType.EAGER)
     //@JoinTable(

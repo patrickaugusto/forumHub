@@ -19,13 +19,6 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> criarUsuario(@RequestBody @Valid UsuarioCreateDTO usuarioCreateDTO) {
-        UsuarioResponseDTO usuarioCriado = usuarioService.criarUsuario(usuarioCreateDTO);
-        return ResponseEntity.ok(usuarioCriado);
-    }
-
-
     @GetMapping
     public ResponseEntity<List<UsuarioResponseDTO>> listarUsuarios() {
         List<UsuarioResponseDTO> usuarios = usuarioService.listarTodos();
