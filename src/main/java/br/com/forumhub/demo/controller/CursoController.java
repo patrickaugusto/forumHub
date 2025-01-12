@@ -33,7 +33,6 @@ public class CursoController {
     }
 
 
-    // Buscar curso por ID
     @GetMapping("/{id}")
     public ResponseEntity<CursoResponseDTO> buscarCursoPorId(@PathVariable Long id) {
         var curso = cursoService.buscarCursoPorId(id);
@@ -49,7 +48,6 @@ public class CursoController {
     }
 
 
-    // Deletar curso
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarCurso(@PathVariable Long id) {
         cursoService.deletar(id);

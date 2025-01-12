@@ -1,35 +1,53 @@
 package br.com.forumhub.demo.config.security;
 
-import br.com.forumhub.demo.model.Usuario;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @Service
 public class TokenService {
 
-    private static final String SECRET_KEY = "MINHA_CHAVE_SECRETA_1234567890";
-    private static final long EXPIRATION_TIME = 86400000;
+    @Value("${api.security.token.secret}")
+    private String secret;
 
-    public String gerarToken(Authentication authentication) {
-        Usuario usuario = (Usuario) authentication.getPrincipal();
-        Date hoje = new Date();
-        Date expiracao = new Date(hoje.getTime() + EXPIRATION_TIME);
-
-        Key chave = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
-
-        return Jwts.builder()
-                .setIssuer("API Fórum")
-                .setSubject(usuario.getId().toString())
-                .setIssuedAt(hoje)
-                .setExpiration(expiracao)
-                .signWith(chave, SignatureAlgorithm.HS256)
-                .compact();
+    public String gerarToken(Authentication usuario) {
+        try {
+            var algoritmo = Algorithm.HMAC256(secret);
+            return JWT.create()
+                    .withIssuer("ForumHub.api")
+                    .withSubject(usuario.getName())
+                    .withExpiresAt(dataExpiracao())
+                    .sign(algoritmo);
+        } catch (JWTCreationException e) {
+            throw new RuntimeException("Erro ao gerar token jwt", e);
+        }
     }
+
+    public String getSubject(String tokenJWT) {
+        try {
+            var algoritmo = Algorithm.HMAC256(secret);
+            return JWT.require(algoritmo)
+                    .withIssuer("Forum Hub.api")
+                    .build()
+                    .verify(tokenJWT)
+                    .getSubject();
+        } catch (JWTVerificationException exception) {
+            throw new RuntimeException("Token JWT inválido ou expirado!");
+        }
+    }
+
+    private Instant dataExpiracao() {
+        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+    }
+
 }
+
 

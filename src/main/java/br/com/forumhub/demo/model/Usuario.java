@@ -8,14 +8,18 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Entity
-public class Usuario {
+public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,15 +32,6 @@ public class Usuario {
     @JsonIgnore
     private List<Topico> topicos;
 
-
-    //@ManyToMany(fetch = FetchType.EAGER)
-    //@JoinTable(
-    //        name = "usuario_perfil",
-    //        joinColumns = @JoinColumn(name = "usuario_id"),
-    //        inverseJoinColumns = @JoinColumn(name = "perfil_id")
-    //)
-    //private Set<Perfil> perfis;
-
     public Usuario(UsuarioCreateDTO dadosUsuario) {
         this.nome = dadosUsuario.nome();
         this.email = dadosUsuario.email();
@@ -47,6 +42,21 @@ public class Usuario {
         this.nome = usuarioUpdateDTO.nome();
         this.email = usuarioUpdateDTO.email();
         this.senha = usuarioUpdateDTO.senha();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
+    public String getPassword() {
+        return "";
+    }
+
+    @Override
+    public String getUsername() {
+        return "";
     }
 
     public Long getId() {
@@ -65,7 +75,7 @@ public class Usuario {
         return senha;
     }
 
-    //public Set<Perfil> getPerfis() {
-    //    return perfis;
-    //}
+    public List<Topico> getTopicos() {
+        return topicos;
+    }
 }
