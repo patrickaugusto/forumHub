@@ -1,49 +1,71 @@
 package br.com.forumhub.demo.controller;
+
 import br.com.forumhub.demo.config.security.TokenService;
-import br.com.forumhub.demo.dtos.usuario.UsuarioCreateDTO;
-import br.com.forumhub.demo.dtos.usuario.UsuarioLoginDTO;
-import br.com.forumhub.demo.dtos.usuario.UsuarioResponseDTO;
+import br.com.forumhub.demo.dto.usuario.LoginResponseDTO;
+import br.com.forumhub.demo.dto.usuario.UsuarioLoginDTO;
+import br.com.forumhub.demo.dto.usuario.UsuarioRegisterDTO;
+import br.com.forumhub.demo.dto.usuario.UsuarioResponseDTO;
+import br.com.forumhub.demo.model.entities.Usuario;
+import br.com.forumhub.demo.repository.UsuarioRepository;
 import br.com.forumhub.demo.service.UsuarioService;
 import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("auth")
 public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private TokenService tokenService;
+    private UsuarioRepository repository;
 
     @Autowired
-    private UsuarioService usuarioService;
+    UsuarioService usuarioService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private TokenService tokenService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> autenticar(@RequestBody @Valid UsuarioLoginDTO loginDTO) {
-        UsernamePasswordAuthenticationToken dadosLogin =
-                new UsernamePasswordAuthenticationToken(loginDTO.login(), loginDTO.senha());
-
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid UsuarioLoginDTO data) {
         try {
-            Authentication authentication = authenticationManager.authenticate(dadosLogin);
-            return ResponseEntity.ok().body(tokenService.gerarToken(authentication));
-        } catch (AuthenticationException e) {
-            throw new RuntimeException("Erro ao autenticar ", e);
+            var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
+            var auth = this.authenticationManager.authenticate(usernamePassword);
+
+            UsuarioResponseDTO usuarioDto = usuarioService.buscarUsuarioPorEmail(data.email());
+            var token = tokenService.generateToken((Usuario) auth.getPrincipal());
+
+            return ResponseEntity.ok().body(new LoginResponseDTO(usuarioDto.id(), token));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
-    @PostMapping("/cadastrar")
-    public ResponseEntity<UsuarioResponseDTO> cadastrar(@RequestBody @Valid UsuarioCreateDTO dto) {
-         var usuarioCadastrado = usuarioService.criarUsuario(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioCadastrado);
-    }
-}
 
+    @PostMapping("/register")
+    public ResponseEntity register(@RequestBody @Valid UsuarioRegisterDTO data) {
+        if (this.repository.findByEmail(data.email()) != null) {
+            return ResponseEntity.badRequest().body("Usuário já existe.");
+        }
+
+        String senhaCriptografada = passwordEncoder.encode(data.senha());
+        Usuario usuario = new Usuario(data.nome(), data.email(), senhaCriptografada);
+        this.repository.save(usuario);
+
+        return ResponseEntity.ok("Usuário registrado com sucesso.");
+    }
+
+}

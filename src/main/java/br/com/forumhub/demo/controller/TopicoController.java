@@ -1,15 +1,22 @@
 package br.com.forumhub.demo.controller;
 
-import br.com.forumhub.demo.dtos.topico.TopicoUpdateDTO;
-import br.com.forumhub.demo.dtos.topico.TopicoCreateDTO;
-import br.com.forumhub.demo.dtos.topico.TopicoResponseDTO;
+import br.com.forumhub.demo.dto.topico.TopicoRegisterDTO;
+import br.com.forumhub.demo.dto.topico.TopicoResponseDTO;
+import br.com.forumhub.demo.dto.topico.TopicoUpdateDTO;
+import br.com.forumhub.demo.model.entities.Topico;
 import br.com.forumhub.demo.service.TopicoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDate;
+
 
 @RestController
 @RequestMapping("/topicos")
@@ -18,43 +25,40 @@ public class TopicoController {
     @Autowired
     private TopicoService topicoService;
 
-    @PostMapping
-    public ResponseEntity<TopicoResponseDTO> cadastrar(@RequestBody @Validated TopicoCreateDTO topicoDto) {
-        var dto = topicoService.cadastroTopico(topicoDto);
-        return ResponseEntity.ok(dto);
+    @PostMapping("/add")
+    public ResponseEntity<TopicoResponseDTO> cadastrarTopico(@RequestBody @Valid TopicoRegisterDTO dto) {
+        var dtoTopico = topicoService.criarTopico(dto);
+        return ResponseEntity.ok().body(dtoTopico);
     }
 
     @GetMapping("/listar")
-    public ResponseEntity<List<TopicoResponseDTO>> listarPaginados() {
-
-        var topicos = topicoService.listarTopicos();
-        return ResponseEntity.ok().body(topicos);
+    public ResponseEntity<Page<TopicoResponseDTO>> listarTopicos(
+            @PageableDefault(size = 10, sort = "dataCriacao", direction = Sort.Direction.ASC) Pageable pageable) {
+        return ResponseEntity.ok(topicoService.listarTopicos(pageable));
     }
 
-    @GetMapping("/buscar")
-    public ResponseEntity<List<TopicoResponseDTO>> listarPorCursoEAno(
-            @RequestParam String cursoNome,
-            @RequestParam int ano) {
-
-        var topicos = topicoService.buscarPorCursoEAno(cursoNome, ano);
-        return ResponseEntity.ok().body(topicos);
+    @GetMapping("/data/{data}")
+    public ResponseEntity<Page<TopicoResponseDTO>> buscarTopicosPorData(
+            @RequestParam("data") LocalDate data,
+            @PageableDefault(size = 10, sort = "dataCriacao", direction = Sort.Direction.ASC) Pageable pageable) {
+        return ResponseEntity.ok(topicoService.buscarTopicosPorData(data, pageable));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<TopicoResponseDTO> buscarPorId(@PathVariable Long id) {
-        var topico = topicoService.buscarPorId(id);
-        return ResponseEntity.ok().body(topico);
+    @GetMapping("/id/{id}")
+    public ResponseEntity<TopicoResponseDTO> buscarTopicoPorId(@PathVariable Long id) {
+        return ResponseEntity.ok().body(topicoService.buscarTopicoPorId(id));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<TopicoResponseDTO> atualizarTopico(@PathVariable Long id, @RequestBody @Validated TopicoUpdateDTO topicoDto) {
-        return ResponseEntity.ok().body(topicoService.atualizarTopico(id, topicoDto));
+    @PutMapping("/atualizar/{id}")
+    public ResponseEntity<TopicoResponseDTO> atualizarTopico(@PathVariable Long id, @RequestBody @Valid TopicoUpdateDTO dto) {
+        return ResponseEntity.ok().body(topicoService.atualizarTopico(id, dto));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity deletarTopico(@PathVariable Long id) {
-        topicoService.deleteTopico(id);
-        return ResponseEntity.ok().build();
+    @DeleteMapping("/deletar/{id}")
+    public ResponseEntity<Void> deletarTopico(@PathVariable Long id) {
+        topicoService.deletarTopico(id);
+        return ResponseEntity.noContent().build();
     }
+
+
 }
-

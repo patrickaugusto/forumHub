@@ -1,19 +1,20 @@
 package br.com.forumhub.demo.service;
 
-import br.com.forumhub.demo.dtos.topico.TopicoUpdateDTO;
-import br.com.forumhub.demo.dtos.topico.TopicoCreateDTO;
-import br.com.forumhub.demo.dtos.topico.TopicoResponseDTO;
-import br.com.forumhub.demo.model.Curso;
-import br.com.forumhub.demo.model.Topico;
-import br.com.forumhub.demo.model.Usuario;
-import br.com.forumhub.demo.repository.CursoRepository;
+import br.com.forumhub.demo.dto.topico.TopicoRegisterDTO;
+import br.com.forumhub.demo.dto.topico.TopicoResponseDTO;
+import br.com.forumhub.demo.dto.topico.TopicoUpdateDTO;
+import br.com.forumhub.demo.model.entities.Topico;
 import br.com.forumhub.demo.repository.TopicoRepository;
 import br.com.forumhub.demo.repository.UsuarioRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,62 +22,53 @@ public class TopicoService {
 
     @Autowired
     private TopicoRepository topicoRepository;
-    @Autowired
-    private CursoRepository cursoRepository;
+
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public TopicoResponseDTO cadastroTopico(TopicoCreateDTO topicoDto) {
-        if(topicoRepository.existsByTituloAndMensagem(topicoDto.titulo(), topicoDto.mensagem())){
-            throw new RuntimeException("Titulo Ja cadastrado");
+    public TopicoResponseDTO criarTopico(TopicoRegisterDTO dto){
+
+        if (topicoRepository.existsByTituloAndMensagem(dto.titulo(), dto.mensagem())) {
+            throw new IllegalArgumentException("Já existe um tópico com este título e mensagem.");
         }
 
-        Usuario autor = usuarioRepository.findById(topicoDto.autorId())
-                .orElseThrow(() -> new IllegalArgumentException("Autor não encontrado"));
-        Curso curso = cursoRepository.findById(topicoDto.cursoId())
-                .orElseThrow(() -> new IllegalArgumentException("Curso não encontrado"));
+        var usuario = usuarioRepository.getReferenceById(dto.autorId());
+        var topico = new Topico(dto.titulo(), dto.mensagem(), usuario);
 
-        Topico topico = new Topico(topicoDto, autor, curso);
+        topicoRepository.save(topico);
+        return new TopicoResponseDTO(topico);
+    }
+
+    public Page<TopicoResponseDTO> listarTopicos(Pageable pageable) {
+        return topicoRepository.findAll(pageable).map(TopicoResponseDTO::new);
+    }
+
+    public Page<TopicoResponseDTO> buscarTopicosPorData(LocalDate data, Pageable pageable) {
+        return topicoRepository.findByDataCriacao(data, pageable).map(TopicoResponseDTO::new);
+    }
+
+    public TopicoResponseDTO buscarTopicoPorId(Long id) {
+        return new TopicoResponseDTO(buscarPorId(id));
+    }
+
+    public TopicoResponseDTO atualizarTopico(Long id, @Valid TopicoUpdateDTO dto) {
+        var topico = buscarPorId(id);
+
+        topico.setTitulo(dto.titulo());
+        topico.setMensagem(dto.mensagem());
+
         topicoRepository.save(topico);
 
         return new TopicoResponseDTO(topico);
     }
 
-    public List<TopicoResponseDTO> listarTopicos() {
-        return topicoRepository.findAll()
-                .stream()
-                .map(TopicoResponseDTO::new)
-                .collect(Collectors.toList());
-
+    public void deletarTopico(Long id) {
+        var topico = buscarPorId(id);
+        topicoRepository.delete(topico);
     }
 
-    public List<TopicoResponseDTO> buscarPorCursoEAno(String cursoNome, int ano){
-        List<Topico> topicos = topicoRepository.findByCursoAndAno(cursoNome, ano);
-        return topicos.stream()
-                .map(TopicoResponseDTO::new)
-                .toList();
-
-    }
-
-    public TopicoResponseDTO buscarPorId(Long id){
-        var topico = topicoRepository.getReferenceById(id);
-        return new TopicoResponseDTO(topico);
-    }
-
-    public TopicoResponseDTO atualizarTopico(Long id, TopicoUpdateDTO topicoDto){
-        Optional<Topico> topicoOp = topicoRepository.findById(id);
-        if(topicoOp.isEmpty()){
-            throw new RuntimeException("Topico com o id " + id + " não encontrado");
-        }
-
-        var topico = topicoOp.get();
-
-        topico = new Topico(topicoDto);
-        topicoRepository.save(topico);
-        return new TopicoResponseDTO(topico);
-    }
-
-    public void deleteTopico(Long id){
-        topicoRepository.deleteById(id);
+    private Topico buscarPorId(Long id) {
+        return topicoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tópico com o id " + id + " não encontrado."));
     }
 }
