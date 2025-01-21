@@ -19,16 +19,6 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    @PostMapping
-    public ResponseEntity<?> adicionarUsuario(@RequestBody @Valid UsuarioRegisterDTO dto) {
-        try {
-            var usuario = usuarioService.adicionarUsuario(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new UsuarioResponseDTO(usuario));
-        } catch (UsuarioAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
-    }
-
     @GetMapping("/id/{id}")
     public ResponseEntity<?> buscarUsuarioPorId(@PathVariable Long id) {
         try {
