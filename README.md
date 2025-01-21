@@ -34,21 +34,18 @@ Bem-vindo ao **ForumHub API**, um sistema de discussão e gerenciamento de fóru
 ### Tópicos 📝
 
 - **GET** `/topicos` - Lista todos os tópicos.
+- **GET** `/topicos/{data}` - Listar topicos em uma determinada data.
+- **GET** `/topicos/{id}` - Buscar um topico pelo id.
 - **POST** `/topicos` - Cadastra um novo tópico.
-- **PUT** `/topicos/{id}` - Atualiza os dados de um tópico.
-- **DELETE** `/topicos/{id}` - Remove um tópico.
+- **PUT** `/topicos/{topicoId}/{usuarioId}` - Atualiza os dados de um tópico.
+- **DELETE** `/topicos/{topicoId}/{usuarioId}` - Remove um tópico.
 
 ### Respostas 💬
 
 - **GET** `/respostas` - Lista todas as respostas.
+- **GET** `/respostas/{id}` - Buscar uma resposta pelo id.
 - **POST** `/respostas` - Cadastra uma nova resposta.
-- **DELETE** `/respostas/{id}` - Remove uma resposta.
+- **DELETE** `/respostas/{respostaId}/{usuarioId}` - Remove uma resposta.
+- **PUT** `/respostas/{respostaId}/{usuarioId}` 
 
----
-
-
-## Contato 📬
-- **Email:** patrick0augusto@gmail.com
-
----
 
