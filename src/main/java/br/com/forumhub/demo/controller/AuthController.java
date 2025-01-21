@@ -6,15 +6,12 @@ import br.com.forumhub.demo.dto.usuario.UsuarioLoginDTO;
 import br.com.forumhub.demo.dto.usuario.UsuarioRegisterDTO;
 import br.com.forumhub.demo.dto.usuario.UsuarioResponseDTO;
 import br.com.forumhub.demo.model.entities.Usuario;
-import br.com.forumhub.demo.repository.UsuarioRepository;
 import br.com.forumhub.demo.service.UsuarioService;
 import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

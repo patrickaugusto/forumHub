@@ -3,17 +3,15 @@ package br.com.forumhub.demo.controller;
 import br.com.forumhub.demo.dto.resposta.RespostaRequestDTO;
 import br.com.forumhub.demo.dto.resposta.RespostaResponseDTO;
 import br.com.forumhub.demo.dto.resposta.RespostaUpdateDTO;
+import br.com.forumhub.demo.exceptions.NotFoundException;
+import br.com.forumhub.demo.exceptions.UnauthorizedException;
 import br.com.forumhub.demo.service.RespostaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
 
 @RestController
 @RequestMapping("/respostas")
@@ -23,37 +21,66 @@ public class RespostaController {
     private RespostaService respostaService;
 
     @PostMapping
-
-    public ResponseEntity<RespostaResponseDTO> criarResposta(@RequestBody @Valid RespostaRequestDTO dto) {
-        var resposta = respostaService.criarResposta(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new RespostaResponseDTO(resposta));
+    public ResponseEntity<?> criarResposta(@RequestBody @Valid RespostaRequestDTO dto) {
+        try {
+            var resposta = respostaService.criarResposta(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new RespostaResponseDTO(resposta));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao criar resposta.");
+        }
     }
 
     @GetMapping
-    public ResponseEntity<Page<RespostaResponseDTO>> listarRespostas(Pageable pageable) {
-        return ResponseEntity.ok(respostaService.listarRespostas(pageable));
+    public ResponseEntity<?> listarRespostas(Pageable pageable) {
+        try {
+            var respostas = respostaService.listarRespostas(pageable);
+            return ResponseEntity.ok(respostas);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao listar respostas.");
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RespostaResponseDTO> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(respostaService.buscarPorId(id));
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+        try {
+            var resposta = respostaService.buscarPorId(id);
+            return ResponseEntity.ok(new RespostaResponseDTO(resposta));
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao buscar resposta.");
+        }
     }
 
     @PutMapping("/{respostaId}/{usuarioId}")
-    public ResponseEntity<RespostaResponseDTO> atualizarResposta(@PathVariable
-                                                                 Long respostaId,
-                                                                 @PathVariable
-                                                                 Long usuarioId,
-                                                                 @RequestBody @Valid
-                                                                 RespostaUpdateDTO dto) {
-        var resposta = respostaService.atualizarResposta(respostaId, usuarioId, dto);
-        return ResponseEntity.status(HttpStatus.OK).body(new RespostaResponseDTO(resposta));
+    public ResponseEntity<?> atualizarResposta(@PathVariable Long respostaId,
+                                               @PathVariable Long usuarioId,
+                                               @RequestBody @Valid RespostaUpdateDTO dto) {
+        try {
+            var resposta = respostaService.atualizarResposta(respostaId, usuarioId, dto);
+            return ResponseEntity.ok(new RespostaResponseDTO(resposta));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao atualizar resposta.");
+        }
     }
 
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarResposta(@PathVariable Long id) {
-        respostaService.deletarResposta(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{respostaId}/{usuarioId}")
+    public ResponseEntity<?> deletarResposta(@PathVariable Long respostaId, @PathVariable Long usuarioId) {
+        try {
+            respostaService.deletarResposta(respostaId, usuarioId);
+            return ResponseEntity.noContent().build();
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao deletar resposta.");
+        }
     }
 }
