@@ -11,6 +11,6 @@ import java.time.LocalDate;
 @Repository
 public interface TopicoRepository extends JpaRepository<Topico, Long> {
     boolean existsByTituloAndMensagem(String titulo, String mensagem);
-    Page<Topico> findByDataCriacao(LocalDate dataCriacao, Pageable pageable);
 
+    Page<Topico> findByDataCriacao(LocalDate dataCriacao, Pageable pageable);
 }

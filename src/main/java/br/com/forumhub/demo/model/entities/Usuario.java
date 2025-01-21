@@ -1,8 +1,8 @@
 package br.com.forumhub.demo.model.entities;
 
+import br.com.forumhub.demo.model.enums.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +14,9 @@ import java.util.List;
 @Table(name = "usuarios")
 @Entity(name = "Usuario")
 @AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(of = "id")
+@Data
 public class Usuario implements UserDetails {
 
     @Id
@@ -24,16 +26,22 @@ public class Usuario implements UserDetails {
     private String email;
     private String senha;
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Topico> topicos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Resposta> respostas = new ArrayList<>();
+
 
     public Usuario(String nome, String email, String senhaCriptografada) {
         this.nome = nome;
         this.email = email;
         this.senha = senhaCriptografada;
+        this.role = Role.USER;
     }
-
-    public Usuario(){}
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -72,19 +80,4 @@ public class Usuario implements UserDetails {
         return true;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
 }

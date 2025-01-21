@@ -28,13 +28,7 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private UsuarioRepository repository;
-
-    @Autowired
     UsuarioService usuarioService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private TokenService tokenService;
@@ -45,10 +39,10 @@ public class AuthController {
             var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
             var auth = this.authenticationManager.authenticate(usernamePassword);
 
-            UsuarioResponseDTO usuarioDto = usuarioService.buscarUsuarioPorEmail(data.email());
+            var usuario = usuarioService.buscarUsuarioPorEmail(data.email());
             var token = tokenService.generateToken((Usuario) auth.getPrincipal());
 
-            return ResponseEntity.ok().body(new LoginResponseDTO(usuarioDto.id(), token));
+            return ResponseEntity.ok().body(new LoginResponseDTO(usuario.getId(), token));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -56,16 +50,13 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody @Valid UsuarioRegisterDTO data) {
-        if (this.repository.findByEmail(data.email()) != null) {
-            return ResponseEntity.badRequest().body("Usuário já existe.");
+    public ResponseEntity<UsuarioResponseDTO> register(@RequestBody @Valid UsuarioRegisterDTO dto) {
+        try {
+            return ResponseEntity.ok().body(new UsuarioResponseDTO(usuarioService.adicionarUsuario(dto)));
         }
-
-        String senhaCriptografada = passwordEncoder.encode(data.senha());
-        Usuario usuario = new Usuario(data.nome(), data.email(), senhaCriptografada);
-        this.repository.save(usuario);
-
-        return ResponseEntity.ok("Usuário registrado com sucesso.");
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
 }
