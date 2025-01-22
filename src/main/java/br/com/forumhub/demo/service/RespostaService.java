@@ -28,10 +28,6 @@ public class RespostaService {
         var topico = topicoService.buscarTopicoPorId(dto.topicoId());
         var usuario = usuarioService.buscarUsuarioPorId(dto.usuarioId());
 
-        if (!"ABERTO".equals(topico.getStatus())) {
-            throw new IllegalStateException("Não é possível adicionar respostas a um tópico fechado.");
-        }
-
         var resposta = new Resposta(dto.mensagem(), topico, usuario);
         return respostaRepository.save(resposta);
     }
