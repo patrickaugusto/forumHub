@@ -8,7 +8,7 @@ public record RespostaResponseDTO(
         Long id,
         String mensagem,
         Long topicoId,
-        Long usuarioId,
+        String nomeUsuario,
         LocalDateTime dataHora,
         Integer curtida
 ) {
@@ -17,7 +17,7 @@ public record RespostaResponseDTO(
                 resposta.getId(),
                 resposta.getMensagem(),
                 resposta.getTopico().getId(),
-                resposta.getUsuario().getId(),
+                resposta.getUsuario().getNome(),
                 resposta.getDataHora(),
                 resposta.getCurtida()
         );
