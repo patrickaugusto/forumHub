@@ -1,6 +1,7 @@
 package br.com.forumhub.demo.dto.resposta;
 
 import br.com.forumhub.demo.model.entities.Resposta;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
 
@@ -9,6 +10,7 @@ public record RespostaResponseDTO(
         String mensagem,
         Long topicoId,
         String nomeUsuario,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
         LocalDateTime dataHora,
         Integer curtida
 ) {
