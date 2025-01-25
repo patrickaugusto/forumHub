@@ -17,6 +17,7 @@ public record TopicoResponseDTO(
         LocalDate dataCriacao,
         Status status,
         Long autorId,
+        String nomeAutor,
         List<RespostaResponseDTO> respostas
 ) {
     public TopicoResponseDTO(Topico topico) {
@@ -27,6 +28,7 @@ public record TopicoResponseDTO(
                 topico.getDataCriacao().toLocalDate(),
                 topico.getStatus(),
                 topico.getAutor().getId(),
+                topico.getAutor().getNome(),
                 topico.getRespostas().stream().map(RespostaResponseDTO::new).collect(Collectors.toList())
         );
     }
