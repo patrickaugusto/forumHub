@@ -38,8 +38,20 @@ public class TopicoController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<?> listarTopicos(
+    @GetMapping("/desc")
+    public ResponseEntity<?> listarTopicosMaisNovos(
+            @PageableDefault(size = 10, sort = "dataCriacao", direction = Sort.Direction.DESC) Pageable pageable) {
+        try {
+            var topicoPag = topicoService.listarTopicos(pageable);
+            var topicoDtoPag = topicoPag.map(TopicoResponseDTO::new);
+            return ResponseEntity.ok(topicoDtoPag);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao listar tópicos.");
+        }
+    }
+
+    @GetMapping("/asc")
+    public ResponseEntity<?> listarTopicosMaisVelhos(
             @PageableDefault(size = 10, sort = "dataCriacao", direction = Sort.Direction.ASC) Pageable pageable) {
         try {
             var topicoPag = topicoService.listarTopicos(pageable);
@@ -49,6 +61,7 @@ public class TopicoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao listar tópicos.");
         }
     }
+
 
     @GetMapping("/data/{data}")
     public ResponseEntity<?> buscarTopicosPorData(

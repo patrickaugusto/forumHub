@@ -49,8 +49,6 @@ public class UsuarioController {
         }
     }
 
-    /*
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarUsuario(@PathVariable Long id) {
         try {
@@ -60,5 +58,4 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    */
 }

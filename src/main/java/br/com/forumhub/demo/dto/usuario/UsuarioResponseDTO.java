@@ -5,11 +5,12 @@ import br.com.forumhub.demo.model.entities.Usuario;
 public record UsuarioResponseDTO(
         Long id,
         String nome,
-        String email
+        String email,
+        String role
 ) {
     public UsuarioResponseDTO(Usuario usuario) {
         this(
-                usuario.getId(), usuario.getNome(), usuario.getEmail()
+                usuario.getId(), usuario.getNome(), usuario.getEmail(), usuario.getRole().toString()
         );
     }
 }
