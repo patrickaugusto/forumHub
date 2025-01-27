@@ -71,9 +71,9 @@ public class RespostaController {
     }
 
     @DeleteMapping("/{respostaId}/{usuarioId}")
-    public ResponseEntity<?> deletarResposta(@PathVariable Long respostaId, @PathVariable Long usuarioId) {
+    public ResponseEntity<?> deletarResposta(@PathVariable Long respostaId) {
         try {
-            respostaService.deletarResposta(respostaId, usuarioId);
+            respostaService.deletarResposta(respostaId);
             return ResponseEntity.noContent().build();
         } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());

@@ -74,14 +74,9 @@ public class TopicoService {
         }
     }
 
-    public Topico atualizarTopico(Long topicoId, Long usuarioId, TopicoUpdateDTO dto) {
+    public Topico atualizarTopico(Long topicoId, TopicoUpdateDTO dto) {
         try {
             var topico = buscarTopicoPorId(topicoId);
-            var usuario = usuarioService.buscarUsuarioPorId(usuarioId);
-
-            if (!usuario.getId().equals(topico.getAutor().getId())) {
-                throw new UnauthorizedException("Usuário não autorizado a modificar este tópico.");
-            }
 
             topico.setTitulo(dto.titulo());
             topico.setMensagem(dto.mensagem());
@@ -94,14 +89,9 @@ public class TopicoService {
         }
     }
 
-    public void deletarTopico(Long topicoId, Long usuarioId) {
+    public void deletarTopico(Long topicoId) {
         try {
-            var usuario = usuarioService.buscarUsuarioPorId(usuarioId);
             var topico = buscarTopicoPorId(topicoId);
-
-            if (!usuario.getId().equals(topico.getAutor().getId())) {
-                throw new UnauthorizedException("Usuário não autorizado a deletar este tópico.");
-            }
 
             topicoRepository.delete(topico);
         } catch (UnauthorizedException e){

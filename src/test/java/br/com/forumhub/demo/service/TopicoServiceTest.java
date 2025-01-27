@@ -151,32 +151,12 @@ class TopicoServiceTest {
         when(topicoRepository.save(any(Topico.class))).thenReturn(topico);
 
         // Act
-        Topico result = topicoService.atualizarTopico(1L, 2L, dto);
+        Topico result = topicoService.atualizarTopico(1L, dto);
 
         // Assert
         assertNotNull(result);
         assertEquals("Novo Título", result.getTitulo());
         verify(topicoRepository, times(1)).save(topico);
-    }
-
-    @Test
-    void atualizarTopico_deveLancarUnauthorizedException() {
-        // Arrange
-        Topico topico = new Topico();
-        topico.setId(1L);
-        Usuario outroUsuario = new Usuario();
-        outroUsuario.setId(3L);
-        topico.setAutor(outroUsuario);
-
-        Usuario usuarioAtual = new Usuario();
-        usuarioAtual.setId(2L);
-        TopicoUpdateDTO dto = new TopicoUpdateDTO("Novo Título", "Nova Mensagem");
-
-        when(topicoRepository.findById(1L)).thenReturn(Optional.of(topico));
-        when(usuarioService.buscarUsuarioPorId(2L)).thenReturn(usuarioAtual);
-
-        // Act & Assert
-        assertThrows(UnauthorizedException.class, () -> topicoService.atualizarTopico(1L, 2L, dto));
     }
 
     @Test
@@ -192,28 +172,9 @@ class TopicoServiceTest {
         when(usuarioService.buscarUsuarioPorId(2L)).thenReturn(autor);
 
         // Act
-        topicoService.deletarTopico(1L, 2L);
+        topicoService.deletarTopico(1L);
 
         // Assert
         verify(topicoRepository, times(1)).delete(topico);
-    }
-
-    @Test
-    void deletarTopico_deveLancarUnauthorizedException() {
-        // Arrange
-        Topico topico = new Topico();
-        topico.setId(1L);
-        Usuario outroUsuario = new Usuario();
-        outroUsuario.setId(3L);
-        topico.setAutor(outroUsuario);
-
-        Usuario usuarioAtual = new Usuario();
-        usuarioAtual.setId(2L);
-
-        when(topicoRepository.findById(1L)).thenReturn(Optional.of(topico));
-        when(usuarioService.buscarUsuarioPorId(2L)).thenReturn(usuarioAtual);
-
-        // Act & Assert
-        assertThrows(UnauthorizedException.class, () -> topicoService.deletarTopico(1L, 2L));
     }
 }

@@ -166,28 +166,9 @@ class RespostaServiceTest {
         when(usuarioService.buscarUsuarioPorId(2L)).thenReturn(usuario);
 
         // Act
-        respostaService.deletarResposta(1L, 2L);
+        respostaService.deletarResposta(1L);
 
         // Assert
         verify(respostaRepository, times(1)).deleteById(1L);
-    }
-
-    @Test
-    void deletarResposta_deveLancarUnauthorizedException() {
-        // Arrange
-        Resposta resposta = new Resposta();
-        resposta.setId(1L);
-        Usuario outroUsuario = new Usuario();
-        outroUsuario.setId(3L);
-        resposta.setUsuario(outroUsuario);
-
-        Usuario usuarioAtual = new Usuario();
-        usuarioAtual.setId(2L);
-
-        when(respostaRepository.findById(1L)).thenReturn(Optional.of(resposta));
-        when(usuarioService.buscarUsuarioPorId(2L)).thenReturn(usuarioAtual);
-
-        // Act & Assert
-        assertThrows(UnauthorizedException.class, () -> respostaService.deletarResposta(1L, 2L));
     }
 }

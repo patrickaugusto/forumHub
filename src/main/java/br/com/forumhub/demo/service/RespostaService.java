@@ -54,13 +54,7 @@ public class RespostaService {
         return respostaRepository.save(resposta);
     }
 
-    public void deletarResposta(Long respostaId, Long usuarioId) {
-        var resposta = buscarPorId(respostaId);
-        var usuario = usuarioService.buscarUsuarioPorId(usuarioId);
-
-        if (!resposta.getUsuario().getId().equals(usuario.getId())) {
-            throw new UnauthorizedException("Usuário não autorizado a deletar esta resposta.");
-        }
+    public void deletarResposta(Long respostaId) {
 
         respostaRepository.deleteById(respostaId);
     }

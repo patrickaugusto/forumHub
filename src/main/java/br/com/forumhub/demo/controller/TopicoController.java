@@ -76,12 +76,11 @@ public class TopicoController {
         }
     }
 
-    @PutMapping("/{topicoId}/{usuarioId}")
+    @PutMapping("/{topicoId}")
     public ResponseEntity<?> atualizarTopico(@PathVariable Long topicoId,
-                                             @PathVariable Long usuarioId,
                                              @RequestBody @Valid TopicoUpdateDTO dto) {
         try {
-            var topicoAtualizado = new TopicoResponseDTO(topicoService.atualizarTopico(topicoId, usuarioId, dto));
+            var topicoAtualizado = new TopicoResponseDTO(topicoService.atualizarTopico(topicoId, dto));
             return ResponseEntity.ok(topicoAtualizado);
         } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
@@ -90,10 +89,10 @@ public class TopicoController {
         }
     }
 
-    @DeleteMapping("/{topicoId}/{usuarioId}")
-    public ResponseEntity<?> deletarTopico(@PathVariable Long topicoId, @PathVariable Long usuarioId) {
+    @DeleteMapping("/{topicoId}")
+    public ResponseEntity<?> deletarTopico(@PathVariable Long topicoId) {
         try {
-            topicoService.deletarTopico(topicoId, usuarioId);
+            topicoService.deletarTopico(topicoId);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
