@@ -9,6 +9,7 @@ public record RespostaResponseDTO(
         Long id,
         String mensagem,
         Long topicoId,
+        Long usuarioId,
         String nomeUsuario,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
         LocalDateTime dataHora,
@@ -19,6 +20,7 @@ public record RespostaResponseDTO(
                 resposta.getId(),
                 resposta.getMensagem(),
                 resposta.getTopico().getId(),
+                resposta.getUsuario().getId(),
                 resposta.getUsuario().getNome(),
                 resposta.getDataHora(),
                 resposta.getCurtida()
